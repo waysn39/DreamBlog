@@ -4,7 +4,7 @@
     <div class="mood-item" id="mood-item">
       <div class="mood-item-left mood-item-img-parent" id="mood-item-left">
         <div class="mood-item-img" id="mood-item-img">
-          <img :src="getAvatar" alt="">
+          <img :src="headImg" alt="">
         </div>
       </div>
       <div class="mood-item-right" id="mood-item-right">
@@ -15,9 +15,7 @@
       </div>
     </div>
     <div class="mood-img">
-      <!--<li><img id="mood-bottom-img" src="https://ooszy.cco.vin/img/blog-public/btg2.jpg" alt=""></li>-->
       <div class="mood-img-left">
-        <!--<poster/>-->
       </div>
       <div class="mood-img-right" id="mood-img-right">
         <div class="mood-li-control">
@@ -35,6 +33,7 @@
 
 <script>
 import mediumZoom from 'medium-zoom'
+import baseService from "../../service/baseService";
 
 import $ from 'jquery'
 export default {
@@ -61,7 +60,7 @@ export default {
       background_color = this.$store.state.defaultRandomColors[
           this.getRandomInt(0,this.$store.state.defaultRandomColors.length -1)]
     }
-
+    this.getheadImg;
     this.hexToRgbColor = this.hexToRgb(background_color)
   },
   mounted() {
@@ -86,19 +85,12 @@ export default {
           this.hexToRgbColor.g + "," + this.hexToRgbColor.b + "," +
           (this.$store.state.varOpacity * 1.2) + ");"
     },
-    getAvatar() {
-      return this.getHeroImage
-      //return this.moodItem.avatar === undefined ? this.getHeroImage : this.moodItem.avatar
+    getheadImg() {
+      baseService.get("/open/get/head").then((res) => {
+      this.headImg= withBase(res.data[0]);
+    });
     },
-    getHeroImage() {
-      let src = this.themeProperty.heroImg
-      if (src === undefined) {
-        console.log("you need to set the heroImg field value,the default is: https://ooszy.cco.vin/img/blog-public/avatar.jpg")
-        return "https://ooszy.cco.vin/img/blog-public/avatar.jpg"
-      }else {
-        return src
-      }
-    }
+ 
   },
   methods: {
     getRandomInt(min, max) {

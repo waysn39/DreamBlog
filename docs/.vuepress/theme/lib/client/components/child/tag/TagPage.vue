@@ -19,12 +19,14 @@
 </template>
 
 <script>
+import baseService from "../../../service/baseService";
 
 export default {
   name: "TagPage",
   data() {
     return {
-      tagContent: ''
+      tagContent: '',
+      imgUrls:[],
     }
   },
   props: {
@@ -34,18 +36,7 @@ export default {
   },
   computed: {
     setBackgroundImg() {
-      let num1 = this.getRandomInt(-9999,999)
-      let num2 = this.getRandomInt(0,300)
-      let num3 = this.getRandomInt(0,30)
-      let num = num2 / num3 * num1 + num2
-
-      let homePageImgApi = this.themeProperty.homePageImgApi
-
-      if (homePageImgApi === undefined) {
-        homePageImgApi = this.$store.state.defaultHomePageImgApi
-      }
-
-      let path = homePageImgApi + "?time=" + num
+      let path = this.imgUrls[this.getRandomInt(0,this.imgUrls.length)];
       return "background-image: url(" + path + ");"
     },
     getRandomIntValue() {
@@ -99,6 +90,12 @@ export default {
     allCategories() {
       return  this.pageMap.tag.concat(this.pageMap.categories)
     }
+  },
+  created() {
+        baseService.get("/open/get/word/head/img").then((res) => {
+        this.imgUrls= res.data;
+        return this.imgUrls;
+    });
   },
   mounted() {
     this.$nextTick(() => {

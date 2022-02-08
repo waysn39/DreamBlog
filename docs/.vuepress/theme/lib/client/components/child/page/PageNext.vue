@@ -16,6 +16,7 @@
 
 <script>
 import {useThemeData, useThemeLocaleData} from "../../../composables";
+import baseService from "../../../service/baseService";
 
 export default {
   name: "PageNextItem",
@@ -25,25 +26,15 @@ export default {
       currentCatalogObjectArr: null,
       prePage: '',
       nextPage: '',
+      imgUrls:[],
       themeConfig: {},
       recommendNoTitle: "╮(￣▽￣)╭"
     }
   },
   computed: {
     getBgSrc() {
-      let num1 = this.getRandomInt(-9999,999)
-      let num2 = this.getRandomInt(0,300)
-      let num3 = this.getRandomInt(0,30)
-      let num = num2 / num3 * num1 + num2
 
-      const themeLocale = useThemeLocaleData()
-
-      let homePageImgApi = themeLocale.value.homePageImgApi
-
-      if (homePageImgApi === undefined) {
-        homePageImgApi = this.$store.state.defaultHomePageImgApi
-      }
-      let path = homePageImgApi + "?time=" + num
+      let path = this.imgUrls[this.getRandomInt(0,this.imgUrls.length)];
       return '--homePageImgApi: url('+ path +');'
     }
   },
@@ -59,6 +50,10 @@ export default {
         this.setPageNext()
       }
     },50)
+    baseService.get("/open/get/word/head/img").then((res) => {
+        this.imgUrls= res.data;
+        return this.imgUrls;
+    });
   },
   methods: {
     getRandomInt(min, max) {

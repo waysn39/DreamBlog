@@ -3,7 +3,7 @@ import axios, { AxiosRequestConfig } from "axios";
 import qs from "qs";
 
 const http = axios.create({
-  baseURL: "http://localhost:1340/exclusive-services",
+  baseURL: "http://81.68.226.246:1340/exclusive-services",
   timeout: 30000
 });
 

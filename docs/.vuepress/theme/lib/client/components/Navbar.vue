@@ -10,10 +10,6 @@
 
     <span ref="siteBrand">
       <RouterLink to="/">
-        <img style="border-radius: 30px"
-             class="logo"
-             :src="withBase(getLogoImg)"
-             :alt="siteBrandTitle" />
         <span class="site-name"
               :style="setLogoColor">
           {{getLogoTitle}}
@@ -45,7 +41,7 @@ import ToggleSidebarButton from "./ToggleSidebarButton.vue";
 import { computed, onMounted, ref } from "vue";
 import { useRouteLocale, useSiteLocaleData, withBase } from "@vuepress/client";
 import { useThemeData, useThemeLocaleData } from "../composables";
-
+import baseService from "../service/baseService";
 defineEmits(["toggle-sidebar"]);
 const routeLocale = useRouteLocale();
 const siteLocale = useSiteLocaleData();
@@ -68,12 +64,7 @@ let props = defineProps({
 });
 //设置logo颜色
 const setLogoColor = computed(() => {
-  let logoColor =
-    useThemeData().value.logoColor === undefined ||
-    useThemeData().value.logoColor == null
-      ? "#2c3e50"
-      : useThemeData().value.logoColor;
-  return "color: " + logoColor + ";";
+  return "color: " + "#ffffff" + ";";
 });
 let setHeaderStyle = computed(() => {
   if (props.showHeaderBg) {
@@ -81,27 +72,7 @@ let setHeaderStyle = computed(() => {
   }
 });
 const getLogoTitle = computed(() => {
-  let logoTitle = useThemeData().value.logoTitle;
-  if (logoTitle === undefined) {
-    logoTitle = "Aurora";
-  }
-  return logoTitle;
-});
-const getLogoImg = computed(() => {
-  const themeLocale = useThemeLocaleData();
-  let src = themeLocale.value.logo;
-  if (src === undefined || src === null) {
-    console.warn(
-      "%c you need to set the logo field value,the default is: https://ooszy.cco.vin/img/ico/yuan.png",
-      "color: pink;"
-    );
-    return "https://ooszy.cco.vin/img/ico/yuan.png";
-  } else {
-    return src;
-  }
-});
-const siteBrandLogo = computed(() => {
-  return themeLocale.value.logo;
+  return "何以解忧-唯有热爱";
 });
 const siteBrandTitle = computed(() => siteLocale.value.title);
 const linksWrapperMaxWidth = ref(0);

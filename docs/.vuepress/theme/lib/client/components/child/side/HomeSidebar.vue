@@ -10,7 +10,7 @@
       <!--头像信息-->
       <div :id="customId" v-if="showPersonInfo" class="sidebar-single-common">
         <div class="home-sidebar-avatar">
-          <img id="home-sidebar-avatar-img" :src="$withBase(getAvatar)" alt="">
+          <img id="home-sidebar-avatar-img" :src="headImg" alt="">
         </div>
         <div class="home-sidebar-info-desc">
           <span v-if="getLogoTitle !== ''" v-html="getLogoTitle"></span>
@@ -187,6 +187,8 @@
 import Catalog from "../Catalog.vue";
 import MobileSidebarNav from "./MobileSidebarNav.vue";
 import HomeSidebarSocialItem from "./HomeSidebarSocialItem.vue";
+import baseService from "../../../service/baseService";
+import { withBase} from "@vuepress/client";
 
 
 import {useThemeData} from "../../../composables";
@@ -343,7 +345,6 @@ export default {
         })
       })
     }
-
     let socials = this.themeProperty.socials
     let setArr = new Set()
     if (socials !== undefined) {
@@ -358,6 +359,7 @@ export default {
         this.socialsArr = Array.from(setArr)
       })
     }
+    this.getheadImg;
   },
   computed: {
     setHomeSidebarStyle() {
@@ -434,17 +436,10 @@ export default {
         return this.themeProperty.sidebarDesc
       }
     },
-    getAvatar() {
-
-      let sidebarAvatar = "https://ooszy.cco.vin/img/blog-public/avatar.jpg"
-      if (this.themeProperty.sidebarAvatar !== undefined) {
-        sidebarAvatar = this.themeProperty.sidebarAvatar
-      }else {
-        if (this.themeProperty.heroImg !== undefined) {
-          sidebarAvatar = this.themeProperty.heroImg
-        }
-      }
-      return sidebarAvatar
+    getheadImg() {
+      baseService.get("/open/get/head").then((res) => {
+      this.headImg= withBase(res.data[0]);
+    });
     },
     getLatestPage() {
       return this.allSortPageArr.slice(0,this.latestPageSize)

@@ -41,12 +41,14 @@
 
 <script>
 import {useThemeLocaleData} from "../../../composables";
+import baseService from "../../../service/baseService";
 export default {
   name: "HomePageItem",
   data() {
     return {
       homePageLazyLoadingImg: 'https://ooszy.cco.vin/img/blog-note/aurora-loading.gif',
       coverUrl: '',
+      imgUrls:[],
       homeTopText: 'Top'
     }
   },
@@ -94,21 +96,7 @@ export default {
     },
     getPageUrl() {
       return (item) => {
-        let num1 = this.getRandomInt(-9999,999)
-        let num2 = this.getRandomInt(0,300)
-        let num3 = this.getRandomInt(0,30)
-        let num = num2 / num3 * num1 + num2
-
-        const themeLocale = useThemeLocaleData()
-
-        let homePageImgApi = themeLocale.value.homePageImgApi
-
-        if (homePageImgApi === undefined) {
-          homePageImgApi = this.$store.state.defaultHomePageImgApi
-        }
-        let path = homePageImgApi + "?time=" + num
-        this.coverUrl = item.frontmatter.coverUrl === undefined ? path : item.frontmatter.coverUrl
-        return this.coverUrl
+        return this.imgUrls[this.getRandomInt(0,this.imgUrls.length)];
       }
     },
     getPageTag() {
@@ -135,7 +123,6 @@ export default {
         //没有时间戳
         return ''
       }
-
       if (time === 0) {
         //没有时间戳
         return '1970-1-1 08:00'
@@ -192,6 +179,10 @@ export default {
     if (this.themeProperty.homePageLazyLoadingImg !== undefined) {
       this.homePageLazyLoadingImg = this.themeProperty.homePageLazyLoadingImg
     }
+    baseService.get("/open/get/word/head/img").then((res) => {
+        this.imgUrls= res.data;
+        return this.imgUrls;
+       });
   },
   mounted() {
     let h1s = document.querySelectorAll(".home-page-tag-content h1");

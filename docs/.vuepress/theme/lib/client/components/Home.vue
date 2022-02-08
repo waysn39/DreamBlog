@@ -4,7 +4,7 @@
     <div class="home-hero-img"
          :class="{'home-hero-img-custom ': isHome}"
          id="home-hero-img">
-      <img :src="getHeroImg">
+      <img :src="headImg">
     </div>
     <slot name="home1"></slot>
     <div v-if="randomSawRes"
@@ -53,22 +53,17 @@
   </div>
 </template>
 <script lang="ts">
+
 import { computed, defineComponent } from "vue";
-import {
-  usePageFrontmatter,
-  useSiteLocaleData,
-  withBase,
-} from "@vuepress/client";
+import { usePageFrontmatter, useSiteLocaleData, withBase} from "@vuepress/client";
 import { isArray } from "@vuepress/shared";
 import type { DefaultThemeHomePageFrontmatter } from "../../shared";
 import EasyTyper from "easy-typer-js";
-import { useThemeLocaleData } from "../composables";
-
 import { req, cors } from "../public/js/network.js";
-
 import NavLink from "./NavLink.vue";
 import HomeSocial from "./child/home/HomeSocial.vue";
 import HomeSidebarSocialItem from "./child/side/HomeSidebarSocialItem.vue";
+import baseService from "../service/baseService";
 
 export default defineComponent({
   name: "Home",
@@ -80,12 +75,6 @@ export default defineComponent({
   data() {
     return {
       socialsArrTemp: [],
-      networkOption: {
-        baseURL: "https://v1.hitokoto.cn/?encode=text&c=j",
-        timeout: 5000,
-        method: "GET",
-        query: "",
-      },
       randomSawRes: "",
       obj: {
         output: "",
@@ -161,14 +150,6 @@ export default defineComponent({
     const frontmatter = usePageFrontmatter<DefaultThemeHomePageFrontmatter>();
     const siteLocale = useSiteLocaleData();
 
-    const heroImage = computed(() => {
-      if (!frontmatter.value.heroImage) {
-        return null;
-      }
-
-      return withBase(frontmatter.value.heroImage);
-    });
-
     const heroText = computed(() => {
       if (frontmatter.value.heroText === null) {
         return null;
@@ -216,7 +197,6 @@ export default defineComponent({
     const footerHtml = computed(() => frontmatter.value.footerHtml);
 
     return {
-      heroImage,
       heroAlt,
       heroText,
       tagline,
@@ -256,19 +236,8 @@ export default defineComponent({
         openMobileSidebar: false,
       });
     }
-
-    if (this.themeProperty.randomSayApi !== undefined) {
-      this.networkOption.baseURL = this.themeProperty.randomSayApi.urlApi;
-
-      if (this.themeProperty.randomSayApi.method !== undefined) {
-        this.networkOption.method = this.themeProperty.randomSayApi.method;
-      }
-    }
-
+    this.getheadImg;
     this.fetchData();
-    this.$store.commit("setHeroImg", {
-      heroImg: this.heroImage,
-    });
   },
   mounted() {
     window.addEventListener("scroll", this.handleScroll, true);
@@ -356,9 +325,9 @@ export default defineComponent({
           }, this.intervalTime);
         });
       } else {
-        req(this.networkOption).then((res) => {
+        baseService.get("/open/get/talk").then((res) => {
           try {
-            this.randomSawRes = res;
+            this.randomSawRes = res.data;
             const typed = this.initTyped(this.randomSawRes, () => {
               setTimeout(() => {
                 this.fetchData();
@@ -386,32 +355,13 @@ export default defineComponent({
         return "home-social-custom";
       }
     },
-    getHeroImg() {
-      const themeLocale = useThemeLocaleData();
-      let src = themeLocale.value.heroImg;
-      if (src === undefined) {
-        console.warn(
-          "%c you need to set the heroImg field value,the default is: https://ooszy.cco.vin/img/blog-public/avatar.jpg",
-          "color: pink;"
-        );
-        return "https://ooszy.cco.vin/img/blog-public/avatar.jpg";
-      } else {
-        return withBase(src);
-      }
+    getheadImg() {
+      baseService.get("/open/get/head").then((res) => {
+      this.headImg= withBase(res.data[0]);
+     });
     },
     getHomeHeight() {
       return "--homeHeight: " + this.homeHeightVar + ";";
-    },
-    getHeroImage() {
-      let src = this.themeProperty.heroLogo;
-      if (src === undefined) {
-        console.log(
-          "you need to set the logo field value,the default is: \nhttps://ooszy.cco.vin/img/blog-public/avatar.jpg"
-        );
-        return "https://ooszy.cco.vin/img/blog-public/avatar.jpg";
-      } else {
-        return src;
-      }
     },
   },
 });

@@ -62,6 +62,7 @@ import { readingTime } from 'reading-time-estimator';
 import {useThemeLocaleData} from "../../composables";
 import gsap from "gsap";
 import {withBase} from "@vuepress/client";
+import baseService from "../../service/baseService";
 export default {
   name: "TopImage",
   data() {
@@ -79,7 +80,7 @@ export default {
       pathName: '',
       sugCountPerMin: 230,
       document: {},
-
+      imgUrls:[],
       contentLengthTemp: 0,
       sugReadTimeTemp: 0,
       totalReadNumTemp: 0,
@@ -118,6 +119,10 @@ export default {
       this.setPathName(to.path)
       next()
     })
+    baseService.get("/open/get/word/head/img").then((res) => {
+        this.imgUrls= res.data;
+        return this.imgUrls;
+    });
   },
   mounted() {
     let bubbleNumber = 0.15
@@ -241,21 +246,7 @@ export default {
         //return "background-image: url(" + this.pageMap.data.frontmatter.coverUrl + ");"
         return "background-image: url(" + this.pageMap.data.frontmatter.coverUrl + ");"
       }
-      //用户没有自定义图片，使用随机图片
-      let num1 = this.getRandomInt(-9999,999)
-      let num2 = this.getRandomInt(0,300)
-      let num3 = this.getRandomInt(0,30)
-      let num = num2 / num3 * num1 + num2
-
-      const themeLocale = useThemeLocaleData()
-
-      let homePageImgApi = themeLocale.value.homePageImgApi
-
-      if (homePageImgApi === undefined) {
-        homePageImgApi = this.$store.state.defaultHomePageImgApi
-      }
-
-      let path = homePageImgApi + "?time=" + num
+      let path = this.imgUrls[this.getRandomInt(0,this.imgUrls.length)];
       return "background-image: url(" + path + ");"
     },
     getCustomTopImgPath(pathArr) {

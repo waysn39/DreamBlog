@@ -27,7 +27,7 @@ export default {
       isShowRunTime: true,
       startRunTime: '8/7/2021 12:22:00',
       runTime: '',
-      prefixRuntime: '小破站已运行',
+      prefixRuntime: '已运行',
       themeProperty: '',
     }
   },
@@ -51,23 +51,17 @@ export default {
       this.footerArr = this.themeProperty.footer
     }else {
       this.footerArr = [
-          'Copyright © by qsyyke All Rights Reserved'
       ]
     }
     let showThemeCopyright = this.themeProperty.isShowThemeCopyright
     if (showThemeCopyright === undefined || showThemeCopyright == null || showThemeCopyright === true) {
       //默认为TRUE，显示页脚主题版权
-      let themeCopyright = "theme&nbsp;<a href='https://github.com/vuepress-aurora/vuepress-theme-aurora' target='_blank'>Aurora</a>" +
-          "&nbsp;by&nbsp;<a href='https://aurora.xcye.xyz/' target='_blank'>qsyyke</a>"
-      // this.footerArr.push(themeCopyright)
       let set = new Set()
       for (let i = 0; i < this.footerArr.length; i++) {
         set.add(this.footerArr[i])
       }
-      set.add(themeCopyright)
       let setArr = Array.from(set)
       this.footerArr = setArr
-
     }
 
 
@@ -96,7 +90,7 @@ export default {
       let c = (b - B) * 60;
       let C = Math.floor((b - B) * 60);
       let D = Math.floor((c - C) * 60);
-      this.runTime = this.prefixRuntime + A + "天" + B + "小时" + C + "分" + D + "秒";
+      this.runTime = '已运行' + A + "天" + B + "小时" + C + "分" + D + "秒";
     }
   }
 }

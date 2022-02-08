@@ -1,14 +1,22 @@
 <template>
-  <common :is-sticky-sidebar="!frontmatter.home" :head-line="headLine"
+  <common :is-sticky-sidebar="!frontmatter.home"
+          :head-line="headLine"
           :is-show-head-line="!frontmatter.home"
           :is-home-page="frontmatter.home"
           :is-show-catalog="!frontmatter.home"
           :is-show-top-img="getIsHome">
     <template #center1>
-      <Home :theme-property="themeProperty" :show-random-say="true" :is-home=frontmatter.home v-if="frontmatter.home" />
+      <Home :theme-property="themeProperty"
+            :show-random-say="true"
+            :is-home=frontmatter.home
+            v-if="frontmatter.home" />
     </template>
     <template #center2>
-      <Page :path-name="page.path" v-if="!frontmatter.home" @getHeadLine="getHeadLine" :theme-property="themeProperty" :key="page.path">
+      <Page :path-name="page.path"
+            v-if="!frontmatter.home"
+            @getHeadLine="getHeadLine"
+            :theme-property="themeProperty"
+            :key="page.path">
         <template #top>
           <slot name="page-top" />
         </template>
@@ -36,24 +44,24 @@ import {
   onUnmounted,
   ref,
   Transition,
-} from 'vue'
-import { useRouter } from 'vue-router'
-import { usePageData, usePageFrontmatter } from '@vuepress/client'
-import type { DefaultThemePageFrontmatter } from '../../shared'
+} from "vue";
+import { useRouter } from "vue-router";
+import { usePageData, usePageFrontmatter } from "@vuepress/client";
+import type { DefaultThemePageFrontmatter } from "../../shared";
 import {
   useScrollPromise,
-  useSidebarItems, useThemeData,
+  useSidebarItems,
+  useThemeData,
   useThemeLocaleData,
-} from '../composables'
-import $ from 'jquery'
+} from "../composables";
+import $ from "jquery";
 
 //导入组件
-import Home from '../components/Home.vue'
-import Page from '../components/Page.vue'
-
+import Home from "../components/Home.vue";
+import Page from "../components/Page.vue";
 
 export default defineComponent({
-  name: 'Layout',
+  name: "Layout",
   components: {
     Home,
     Page,
@@ -63,66 +71,66 @@ export default defineComponent({
     showPrintTextValue: {
       type: Boolean,
       default() {
-        return false
-      }
+        return false;
+      },
     },
   },
   setup() {
-    const page = usePageData()
-    const frontmatter = usePageFrontmatter<DefaultThemePageFrontmatter>()
+    const page = usePageData();
+    const frontmatter = usePageFrontmatter<DefaultThemePageFrontmatter>();
 
-    const themeLocale = useThemeLocaleData()
+    const themeLocale = useThemeLocaleData();
 
     // navbar
     const shouldShowNavbar = computed(
-        () =>
-            frontmatter.value.navbar !== false && themeLocale.value.navbar !== false
-    )
+      () =>
+        frontmatter.value.navbar !== false && themeLocale.value.navbar !== false
+    );
 
     // sidebar
-    const sidebarItems = useSidebarItems()
-    const isSidebarOpen = ref(false)
+    const sidebarItems = useSidebarItems();
+    const isSidebarOpen = ref(false);
     const toggleSidebar = (to?: boolean): void => {
-      isSidebarOpen.value = typeof to === 'boolean' ? to : !isSidebarOpen.value
+      isSidebarOpen.value = typeof to === "boolean" ? to : !isSidebarOpen.value;
       if (isSidebarOpen.value) {
-        $("#c-sidebar").css("display","block")
+        $("#c-sidebar").css("display", "block");
       }
-    }
-    const touchStart = { x: 0, y: 0 }
+    };
+    const touchStart = { x: 0, y: 0 };
     const onTouchStart = (e): void => {
-      touchStart.x = e.changedTouches[0].clientX
-      touchStart.y = e.changedTouches[0].clientY
-    }
+      touchStart.x = e.changedTouches[0].clientX;
+      touchStart.y = e.changedTouches[0].clientY;
+    };
     const onTouchEnd = (e): void => {
-      const dx = e.changedTouches[0].clientX - touchStart.x
-      const dy = e.changedTouches[0].clientY - touchStart.y
+      const dx = e.changedTouches[0].clientX - touchStart.x;
+      const dy = e.changedTouches[0].clientY - touchStart.y;
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
         if (dx > 0 && touchStart.x <= 80) {
-          toggleSidebar(true)
+          toggleSidebar(true);
         } else {
-          toggleSidebar(false)
+          toggleSidebar(false);
         }
       }
-    }
+    };
 
     // classes
 
     // close sidebar after navigation
-    let unregisterRouterHook
+    let unregisterRouterHook;
     onMounted(() => {
-      const router = useRouter()
+      const router = useRouter();
       unregisterRouterHook = router.afterEach(() => {
-        toggleSidebar(false)
-      })
-    })
+        toggleSidebar(false);
+      });
+    });
     onUnmounted(() => {
-      unregisterRouterHook()
-    })
+      unregisterRouterHook();
+    });
 
     // handle scrollBehavior with transition
-    const scrollPromise = useScrollPromise()
-    const onBeforeEnter = scrollPromise.resolve
-    const onBeforeLeave = scrollPromise.pending
+    const scrollPromise = useScrollPromise();
+    const onBeforeEnter = scrollPromise.resolve;
+    const onBeforeLeave = scrollPromise.pending;
 
     return {
       frontmatter,
@@ -133,44 +141,43 @@ export default defineComponent({
       onTouchEnd,
       onBeforeEnter,
       onBeforeLeave,
-    }
+    };
   },
   created() {
-    this.themeProperty = useThemeData().value
+    this.themeProperty = useThemeData().value;
   },
   mounted() {
-    this.$router.beforeEach((to,from,next) => {
-      next()
-    })
-
+    this.$router.beforeEach((to, from, next) => {
+      next();
+    });
   },
   data() {
     return {
       isShow: false,
-      animeImg: '',
-      headLine: '',
-      isShowSideBar: '',
+      animeImg: "",
+      headLine: "",
+      isShowSideBar: "",
       themeProperty: null,
-    }
+    };
   },
   methods: {
     showPrintText(value) {
-      console.log(value)
+      console.log(value);
     },
     getHeadLine(title) {
-      this.headLine = title
-    }
+      this.headLine = title;
+    },
   },
   computed: {
     setBackgroundUrl() {
-      return "background-image: url(" + this.animeImg + ");"
+      return "background-image: url(" + this.animeImg + ");";
     },
     getIsHome() {
-      const frontmatter = usePageFrontmatter<DefaultThemePageFrontmatter>()
-      let isHome = frontmatter.value.home
+      const frontmatter = usePageFrontmatter<DefaultThemePageFrontmatter>();
+      let isHome = frontmatter.value.home;
       this.isShowSideBar = isHome === undefined;
-      return this.isShowSideBar
-    }
+      return this.isShowSideBar;
+    },
   },
-})
+});
 </script>

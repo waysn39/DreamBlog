@@ -183,8 +183,9 @@ export default {
       }
     },
     getLogoTitle() {
+      return '何以解忧-唯有热爱'
       if(this.poster === undefined || this.poster == null) {
-        return 'qsyyke'
+        
       }else {
         if(this.poster.preBlog === undefined || this.poster.preBlog == null) {
           return 'qsyyke'

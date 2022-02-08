@@ -262,7 +262,7 @@ export default defineComponent({
         let newScore = score * 0.8;
         let background_color =
           this.themeProperty.randomColor[
-            this.getRandomInt(0, this.themeProperty.randomColor.length - 1)
+            this.getRandomInt(0, this.themeProperty.randomColor.length)
           ];
         return (
           "width: " +
@@ -294,26 +294,18 @@ export default defineComponent({
       if (this.$site.base !== "/") {
         base = this.$site.base;
       }
-      new Promise((resolve, reject) => {
-        let homeWpsSet = new Set();
-        for (let i = 0; i < this.homeWps.length; i++) {
-          // homeWpsSet.add(withBase(this.homeWps[i]))
-          homeWpsSet.add(base + this.homeWps[i]);
-        }
-        resolve(homeWpsSet);
-      }).then((homeWpsSet: any) => {
-        this.homeWps = Array.from(homeWpsSet);
+      baseService.get("/open/get/background/image").then((res) => {
+        this.homeWps = res.data;
         let backgroundUrl = "";
         if (this.$store.state.homeWps === "") {
           //将首页壁纸设置为配置文件数组中的第一张图片
           // backgroundUrl = this.homeWps[0]
-          backgroundUrl =
-            this.homeWps[this.getRandomInt(0, this.homeWps.length - 1)];
+          let index = this.getRandomInt(0, this.homeWps.length);
+          backgroundUrl = this.homeWps[index];
         } else {
           //将首页壁纸设置为配置文件数组中的第一张图片
           backgroundUrl = this.$store.state.homeWps;
         }
-
         this.$store.commit("setHomeWps", {
           homeWps: backgroundUrl,
         });
@@ -397,45 +389,16 @@ export default defineComponent({
     };
   },
   created() {
-    if (this.$store.state.printRightIndex === 0) {
-      console.log(
-        "%c vuepress-theme-Aurora %c by qsyyke",
-        "font-weight: bold;color: white;display: inline-block;text-align: center;height: 1.5rem;line-height: 1.5rem;background-color: rgba(255,202,212,.8);padding: 10px;border-bottom-left-radius: 13px;border-top-left-radius: 13px;",
-        "font-weight: bold;color: white;display: inline-block;text-align: center;height: 1.5rem;line-height: 1.5rem;background-color: rgba(178,247,239,.85);padding: 10px;border-bottom-right-radius: 13px;border-top-right-radius: 13px;"
-      );
-      console.log(
-        "%c Version %c " + this.$store.state.latestVersion + "",
-        "font-weight: bold;color: white;display: inline-block;text-align: center;height: 1.5rem;line-height: 1.5rem;background-color: rgba(255,202,212,.8);padding: 10px;border-bottom-left-radius: 13px;border-top-left-radius: 13px;",
-        "font-weight: bold;color: white;display: inline-block;text-align: center;height: 1.5rem;line-height: 1.5rem;background-color: rgba(178,247,239,.85);padding: 10px;border-bottom-right-radius: 13px;border-top-right-radius: 13px;"
-      );
-    }
-    baseService.get("/open/get/blog/navbar").then((res) => {
-      if (res.code !== 0) {
-        return this.$message.error(res.msg);
-      }
-      this.navbarInfoEx = res.data;
-    });
     this.$store.state.printRightIndex = 1;
 
     this.themeProperty = useThemeData().value;
-    //在v1.3.2之后，就已经移除通过docs/readme.md中配置favicon，转为在config中进行配置
-    // let metaKey = $('<link rel="shortcut icon" href=\"'+this.themeProperty.faviconIco+'\">')
-    // $("head").get(0).appendChild(metaKey.get(0))
+
 
     //从配置文件中，获取首页壁纸
     let homeWps = [];
-    if (
-      this.themeProperty.homeWps === undefined ||
-      this.themeProperty.homeWps == null
-    ) {
-      homeWps.push("https://picoss.cco.vin/animate/wall/404901.png");
-    } else {
-      homeWps = this.themeProperty.homeWps;
-    }
-
-    if (homeWps.length === 0) {
-      homeWps.push("https://picoss.cco.vin/animate/wall/404901.png");
-    }
+    baseService.get("/open/get/background/image").then((res) => {
+      this.homeWps = res.data;
+    });
 
     this.homeWps = homeWps;
 

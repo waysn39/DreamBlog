@@ -23,32 +23,42 @@ import { useNavLink, useThemeLocaleData } from "../composables";
 import { resolveRepoType } from "../utils";
 import DropdownLink from "./DropdownLink.vue";
 import NavLink from "./NavLink.vue";
+import baseService from "../service/baseService";
 
 export default defineComponent({
   name: "NavbarLinks",
-  components: {},
+  components: {
+    NavLink,
+    DropdownLink,
+  },
   data() {
     return {
-      navbarConfig: null,
-      resolveNavbarItem: null,
+      navbarLinks: [],
+      navbarConfig: [],
+      navbarSelectLanguage: [],
     };
   },
-  computed: {
-    useNavbarConfig(): ResolvedNavbarItem[] {
+  created() {
+    this.navbarConfig = this.useNavbarConfig();
+    this.navbarSelectLanguage = this.useNavbarSelectLanguage();
+    this.navbarLinks = [...this.navbarConfig, ...this.navbarSelectLanguage];
+    baseService.get("/open/get/blog/navbar").then((res) => {
+      this.navbarConfig = res.data;
+      this.navbarLinks = [...this.navbarConfig, ...this.navbarSelectLanguage];
+    });
+  },
+  methods: {
+    useNavbarConfig() {
       try {
         const themeLocale = useThemeLocaleData();
-        return (themeLocale.value.navbar || []).map(resolveNavbarItem);
+        return (themeLocale.value.navbar || []).map(this.resolveNavbarItem);
       } catch (e) {}
     },
-  },
-  methods: {},
-  setup() {
-    const router = useRouter();
-    const routeLocale = useRouteLocale();
-    const siteLocale = useSiteLocaleData();
-    const themeLocale = useThemeLocaleData();
-    const useNavbarSelectLanguage = (): ComputedRef<ResolvedNavbarItem[]> => {
+    useNavbarSelectLanguage() {
       const router = useRouter();
+      const routeLocale = useRouteLocale();
+      const siteLocale = useSiteLocaleData();
+      const themeLocale = useThemeLocaleData();
       return computed<ResolvedNavbarItem[]>(() => {
         const localePaths = Object.keys(siteLocale.value.locales);
         // do not display language selection dropdown if there is only one language
@@ -57,7 +67,6 @@ export default defineComponent({
         }
         const currentPath = router.currentRoute.value.path;
         const currentFullPath = router.currentRoute.value.fullPath;
-
         const languageDropdown: ResolvedNavbarItem = {
           text: themeLocale.value.selectLanguageText ?? "unkown language",
           ariaLabel:
@@ -69,10 +78,8 @@ export default defineComponent({
             const targetThemeLocale =
               themeLocale.value.locales?.[targetLocalePath] ?? {};
             const targetLang = `${targetSiteLocale.lang}`;
-
             const text = targetThemeLocale.selectLanguageName ?? targetLang;
             let link;
-
             if (targetLang === siteLocale.value.lang) {
               // if the target language is current language
               // stay at current link
@@ -95,94 +102,30 @@ export default defineComponent({
                 link = targetThemeLocale.home ?? targetLocalePath;
               }
             }
-
             return {
               text,
               link,
             };
           }),
         };
-
         return [languageDropdown];
       });
-    };
-    const useNavbarRepo = (): ComputedRef<ResolvedNavbarItem[]> => {
-      const themeLocale = useThemeLocaleData();
-
-      const repo = computed(() => themeLocale.value.repo);
-      const repoType = computed(() =>
-        repo.value ? resolveRepoType(repo.value) : null
-      );
-
-      const repoLink = computed(() => {
-        if (repo.value && !isLinkHttp(repo.value)) {
-          return `https://github.com/${repo.value}`;
-        }
-
-        return repo.value;
-      });
-
-      const repoLabel = computed(() => {
-        if (!repoLink.value) return null;
-        if (themeLocale.value.repoLabel) return themeLocale.value.repoLabel;
-        if (repoType.value === null) return "Source";
-        return repoType.value;
-      });
-
-      return computed(() => {
-        if (!repoLink.value || !repoLabel.value) {
-          return [];
-        }
-
-        return [
-          {
-            text: repoLabel.value,
-            link: repoLink.value,
-          },
-        ];
-      });
-    };
-
-    const resolveNavbarItem = (
+    },
+    resolveNavbarItem(
       item: NavbarItem | NavbarGroup | string
-    ): ResolvedNavbarItem => {
+    ): ResolvedNavbarItem {
       if (isString(item)) {
-        // console.log(item)
-        // console.log(useNavLink(item))
-        // console.log("----------------------")
         return useNavLink(item);
       }
       if ((item as NavbarGroup).children) {
         return {
           ...item,
-          children: (item as NavbarGroup).children.map(resolveNavbarItem),
+          children: (item as NavbarGroup).children.map(this.resolveNavbarItem),
         };
       }
       return item as ResolvedNavbarItem;
-    };
-
-    const useNavbarConfig = (): ComputedRef<> => {};
-    const navbarConfig = useNavbarConfig();
-    const navbarSelectLanguage = useNavbarSelectLanguage();
-    const navbarRepo = useNavbarRepo();
-    const navbarLinks = computed(() => [
-      ...navbarConfig.value,
-      ...navbarSelectLanguage.value,
-      // ...navbarRepo.value,
-    ]);
-
-    return {
-      router,
-      routeLocale,
-      siteLocale,
-      themeLocale,
-      useNavbarRepo,
-      useNavbarSelectLanguage,
-      resolveNavbarItem,
-      useNavbarConfig,
-    };
+    },
   },
-  created() {},
-  mounted() {},
+  computed: {},
 });
 </script>
