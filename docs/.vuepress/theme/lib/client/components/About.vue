@@ -39,9 +39,6 @@
         </div>
       </div>
     </template>
-    <template #center4>
-      <Donate v-if="getDonateAbout"/>
-    </template>
     <template #center5>
       <comment :path-name="$route.path"/>
     </template>
@@ -72,14 +69,6 @@ export default defineComponent({
     }
   },
   computed: {
-    getDonateAbout() {
-
-      try {
-        return this.themeProperty.donate.aboutPage
-      }catch (e) {
-        return true
-      }
-    },
     getIndex() {
       return (index,length)=> {
         if (index === 0 && length === 1) {

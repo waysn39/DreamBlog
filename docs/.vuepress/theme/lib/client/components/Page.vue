@@ -18,12 +18,9 @@
       <page-next/>
     </template>
   </b-center>
-  <div>
-    <donate v-if="showDonate" />
-  </div>
-  <div class="recommend-page">
+  <!-- <div class="recommend-page">
     <RecommendPage :theme-property="themeProperty"/>
-  </div>
+  </div> -->
   <comment :path-name="pathName"/>
 </template>
 
@@ -63,15 +60,6 @@ export default defineComponent({
     themeProperty: ''
   },
   computed: {
-    showDonate() {
-      let showArticleDonate = true
-      try {
-        showArticleDonate = this.themeProperty.donate.articlePage
-      }catch (e) {
-
-      }
-      return showArticleDonate
-    }
   },
   emits: ['getHeadLine'],
   created() {
